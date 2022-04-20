@@ -77,9 +77,10 @@ class UserFunctionVariable(BaseUserFunctionVariable):
 
     def __init__(self, fn, **kwargs):
         super(UserFunctionVariable, self).__init__(**kwargs)
+        # TODO(before land): verify if this is okay
         assert isinstance(
-            fn, types.FunctionType
-        ), f"expected FunctionType {typestr(fn)} {fn}"
+            fn, (types.FunctionType, types.MethodType)
+        ), f"expected FunctionType or MethodType {typestr(fn)} {fn}"
         # unpack @torchdynamo.optimize()(fn) wrapped function
         fn = inspect.getattr_static(fn, "_torchdynamo_inline", fn)
         self.fn: types.FunctionType = fn

@@ -1115,8 +1115,6 @@ class InliningInstructionTranslator(InstructionTranslatorBase):
     @staticmethod
     def inline_call_(parent, func, args, kwargs):
         assert isinstance(func, (UserFunctionVariable, NestedUserFunctionVariable))
-        if func.has_self():
-            unimplemented("inline with __self__")
         if skipfiles.check(
             func.get_filename()
         ) and not skipfiles.is_torch_inline_allowed(func.get_filename()):
@@ -1125,6 +1123,12 @@ class InliningInstructionTranslator(InstructionTranslatorBase):
             )
 
         try:
+            # TODO(before land): I didn't research this in detail, need to check
+            # what else we need to handle here
+            if func.has_self():
+                # remove self
+                assert args[0] is args[1]
+                args = args[1:]
             sub_locals, closure_cells = func.bind_args(parent, args, kwargs)
         except TypeError as exc:
             print(func.get_filename(), func.get_function(), args, kwargs, exc)
